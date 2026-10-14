@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: notifiers
+    runtime: docker
+    plan: free
+    branch: main
+    autoDeployTrigger: commit
+    healthCheckPath: /
+    envVars:
+      - key: KAFKA_BOOTSTRAP_SERVERS
+        sync: false
+      - key: KAFKA_USERNAME
+        sync: false
+      - key: KAFKA_PASSWORD
+        sync: false
+      - key: KAFKA_CA_CERT
+        sync: false
+      - key: KAFKA_TOPIC
+        value: notificaciones
+      - key: KAFKA_GROUP_ID
+        value: notifiers-group
+      - key: KAFKA_SASL_MECHANISM
+        value: SCRAM-SHA-256
+      - key: BREVO_API_KEY
+        sync: false
+      - key: BREVO_FROM_ADDRESS
+        sync: false
+      - key: BREVO_FROM_NAME
+        value: Gestion de Usuarios

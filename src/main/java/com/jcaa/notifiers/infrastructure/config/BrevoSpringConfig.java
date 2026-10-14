@@ -1,4 +1,4 @@
-﻿package com.jcaa.notifiers.infrastructure.config;
+package com.jcaa.notifiers.infrastructure.config;
 
 import com.jcaa.notifiers.infrastructure.adapter.email.BrevoConfig;
 import lombok.extern.slf4j.Slf4j;

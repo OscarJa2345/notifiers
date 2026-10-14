@@ -87,9 +87,9 @@ public class KafkaConsumerConfig {
     }
     if (securityProtocol.contains("SSL") && !caCert.isBlank()) {
       props.put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, "PEM");
-      // Render puede guardar los saltos de línea del certificado como "\n" literal.
-      props.put(SslConfigs.SSL_TRUSTSTORE_CERTIFICATES_CONFIG, caCert.replace("\\n", "\n"));
+      props.put(SslConfigs.SSL_TRUSTSTORE_CERTIFICATES_CONFIG, caCert);
     }
+
     return new DefaultKafkaConsumerFactory<>(props);
   }
 
@@ -99,19 +99,20 @@ public class KafkaConsumerConfig {
     final ConcurrentKafkaListenerContainerFactory<String, String> factory =
         new ConcurrentKafkaListenerContainerFactory<>();
     factory.setConsumerFactory(consumerFactory);
-    // Si el envío falla (p. ej. Brevo caído) reintenta 2 veces y luego registra el error y sigue.
     factory.setCommonErrorHandler(
         new DefaultErrorHandler(new FixedBackOff(RETRY_INTERVAL_MS, RETRY_ATTEMPTS)));
     return factory;
   }
 
   private String buildJaasConfig() {
-    final String module = saslMechanism.startsWith("SCRAM") ? SCRAM_LOGIN_MODULE : PLAIN_LOGIN_MODULE;
+    final String loginModule =
+        saslMechanism.toUpperCase().startsWith("SCRAM") ? SCRAM_LOGIN_MODULE : PLAIN_LOGIN_MODULE;
     return String.format(
-        "%s required username=\"%s\" password=\"%s\";", module, escape(username), escape(password));
+        "%s required username=\"%s\" password=\"%s\";",
+        loginModule, escapeJaas(username), escapeJaas(password));
   }
 
-  private static String escape(final String value) {
+  private static String escapeJaas(final String value) {
     return value.replace("\\", "\\\\").replace("\"", "\\\"");
   }
 }
